@@ -59,28 +59,44 @@ server.post('/messages', (req, res) => {
 
 
 server.get('/messages', (req, res) => {
-    console.log("sdg")
+    const { limit } = req.query.limit
+    const { user } = req.headers.user
+    const shownMessages = []
+
+    messages.find(item => {
+        if (item.to === user || item.to === 'Todos' || item.from === user){
+            shownMessages.push(item)
+        }
+    })
+
+    if (limit === undefined){
+        return res.send(shownMessages)
+    } else {
+        shownMessages.reverse()
+        shownMessages.splice(limit, shownMessages.length-1)
+        return res.send(shownMessages)
+    }
 })
 
 
-setInterval(() => {
-    const updatedList = [];
+// setInterval(() => {
+//     const updatedList = [];
 
-    participantsList.forEach(item => {
-        if ((Date.now() - item.lastStatus) > 10000){
-            messages.push({
-                from: item.name, 
-                to: 'Todos', 
-                text: 'sai da sala...', 
-                type: 'status', 
-                time: dayjs().format('HH:mm:ss')
-            })
-        } else {
-            updatedList.push(item)
-        }
-    })
-    participantsList = updatedList
-}, 15000)
+//     participantsList.forEach(item => {
+//         if ((Date.now() - item.lastStatus) > 10000){
+//             messages.push({
+//                 from: item.name, 
+//                 to: 'Todos', 
+//                 text: 'sai da sala...', 
+//                 type: 'status', 
+//                 time: dayjs().format('HH:mm:ss')
+//             })
+//         } else {
+//             updatedList.push(item)
+//         }
+//     })
+//     participantsList = updatedList
+// }, 15000)
 
 
 server.listen(4000, () => {
