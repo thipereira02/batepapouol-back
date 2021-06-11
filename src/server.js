@@ -22,7 +22,8 @@ if (fs.existsSync('./src/messages.json')){
 
 
 server.post('/participants', (req, res) =>{
-    const { name } = req.body;
+    let { name } = req.body;
+    name = stripHtml(name).result.trim();
 
     if (!name){
         return res.sendStatus(400);
@@ -53,16 +54,22 @@ server.get('/participants', (req, res) => {
 
 
 server.post('/messages', (req, res) => {
-    const { to, text, type } = req.body;
-    const { user } = req.headers.user;
+    let { to, text, type } = req.body;
+    let { user } = req.headers.user;
+
+    to = stripHtml(to).trim();
+    text = stripHtml(text).trim();
+    type = stripHtml(type).trim();
+    user = stripHtml(user).trim();
+
     if (to === '' || text === '' || type !== 'message' || type !== 'private_message' || participantsList.filter(item => item.name === user) === undefined ){
         return res.sendStatus(400);
     } else {
         messages.push({
+            from: user,
             to,
             text,
             type,
-            from: user,
             time: dayjs().format('HH:mm:ss')
         });
         fs.writeFileSync('./src/messages.json', JSON.stringify(messages));
