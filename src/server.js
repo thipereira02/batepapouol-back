@@ -93,7 +93,7 @@ server.get('/messages', (req, res) => {
         return res.send(shownMessages);
     } else {
         shownMessages.reverse();
-        shownMessages.splice(limit, shownMessages.length-1);
+        shownMessages.splice(limit-1, Number.MAX_VALUE);
         return res.send(shownMessages);
     }
 });
