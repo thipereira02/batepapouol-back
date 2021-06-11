@@ -10,6 +10,7 @@ server.use(cors());
 const participantsList = [];
 const messages = [];
 
+
 server.post('/participants', (req, res) =>{
     const { name } = req.body
 
@@ -56,9 +57,30 @@ server.post('/messages', (req, res) => {
     }
 })
 
+
 server.get('/messages', (req, res) => {
     console.log("sdg")
 })
+
+
+setInterval(() => {
+    const updatedList = [];
+
+    participantsList.forEach(item => {
+        if ((Date.now() - item.lastStatus) > 10000){
+            messages.push({
+                from: item.name, 
+                to: 'Todos', 
+                text: 'sai da sala...', 
+                type: 'status', 
+                time: dayjs().format('HH:mm:ss')
+            })
+        } else {
+            updatedList.push(item)
+        }
+    })
+    participantsList = updatedList
+}, 15000)
 
 
 server.listen(4000, () => {
