@@ -1,14 +1,24 @@
 import express from 'express';
 import cors from 'cors';
 import dayjs from 'dayjs';
+import { stripHtml } from 'string-strip-html';
+import fs from 'fs';
 
 const server = express();
 server.use(express.json());
 
 server.use(cors());
 
-const participantsList = [];
-const messages = [];
+let participantsList = [];
+let messages = [];
+
+if (fs.existsSync('./src/participantsList.json')){
+    participantsList = JSON.parse(fs.readFileSync('./src/participantsList.json'))
+}
+
+if (fs.existsSync('./src/messages.json')){
+    messages = JSON.parse(fs.readFileSync('./src/messages.json'))
+}
 
 
 server.post('/participants', (req, res) =>{
@@ -30,6 +40,8 @@ server.post('/participants', (req, res) =>{
             type: 'status',
             time: dayjs().format('HH:mm:ss')
         });
+        fs.writeFileSync('./src/messages.json', JSON.stringify(messages));
+        fs.writeFileSync('./src/participantsList.json', JSON.stringify(participantsList));
         return res.sendStatus(200);
     }
 });
@@ -53,6 +65,7 @@ server.post('/messages', (req, res) => {
             from: user,
             time: dayjs().format('HH:mm:ss')
         });
+        fs.writeFileSync('./src/messages.json', JSON.stringify(messages));
         return res.sendStatus(200);
     }
 });
@@ -93,7 +106,7 @@ server.post('/status', (req, res) => {
 
 
 setInterval(() => {
-    const updatedList = [];
+    let updatedList = [];
 
     participantsList.forEach(item => {
         if ((Date.now() - item.lastStatus) > 10000){
@@ -103,13 +116,15 @@ setInterval(() => {
                 text: 'sai da sala...', 
                 type: 'status', 
                 time: dayjs().format('HH:mm:ss')
-            })
+            });
         } else {
-            updatedList.push(item)
+            updatedList.push(item);
         }
     })
     participantsList = updatedList
-}, 15000)
+    fs.writeFileSync('./src/messages.json', JSON.stringify(messages));
+    fs.writeFileSync('./src/participantsList.json', JSON.stringify(participantsList));
+}, 15000);
 
 
 server.listen(4000, () => {
