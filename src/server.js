@@ -39,7 +39,26 @@ server.get('/participants', (req, res) => {
 })
 
 
+server.post('/messages', (req, res) => {
+    const { to, text, type } = req.body
+    const { user } = req.headers.user
+    if (to === '' || text === '' || type !== 'message' || type !== 'private_message' || participantsList.filter(item => item.name === user) === undefined ){
+        return res.sendStatus(400)
+    } else {
+        messages.push({
+            to,
+            text,
+            type,
+            from: user,
+            time: dayjs().format('HH:mm:ss')
+        })
+        return res.sendStatus(200)
+    }
+})
 
+server.get('/messages', (req, res) => {
+    console.log("sdg")
+})
 
 
 server.listen(4000, () => {
